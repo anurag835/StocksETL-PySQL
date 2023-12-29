@@ -1,0 +1,22 @@
+version: '3'
+services:
+  airflow:
+    image: apache/airflow:latest
+
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlserver
+    build: 
+      dockerfile: Dockerfile
+    command: ["bash", "-c", "airflow db migrate && airflow webserver"]
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=sqlserver07#
+    ports:
+      - "1433:1433"
