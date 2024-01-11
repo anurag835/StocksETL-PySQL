@@ -23,7 +23,7 @@ default_args = {
     'start_date': datetime(2024, 1, 4),
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 0,
+    'retries': 1,
     'retry_delay': timedelta(minutes=1),
 }
 
@@ -156,7 +156,7 @@ def load_data_to_sql_server(**kwargs):
     
     # PostgreSQL database connection string
     conn_str = f'postgresql://{username}:{password}@localhost:5432/{database}'
-    logging.info("conn_str", conn_str)
+    logging.info("Connection String: %s", conn_str)
     
 
     try:
@@ -201,14 +201,11 @@ def load_data_to_sql_server(**kwargs):
             conn.commit()
             cursor.close()
             conn.close()
-        
-        logging.info("DataFrame Content: %s", nifty50DailyTableTest_DF.head())
-        logging.info("DataFrame Data Types: %s", nifty50DailyTableTest_DF.dtypes)
 
         with engine.begin() as engineConn:
             # Check the maximum 'updatedOn' date in the existing SQL table
             sql_max_updatedOn = pd.read_sql_query(sa.text(f'SELECT MAX("updatedOn") FROM {nifty50_table_name}'), engineConn).iloc[0, 0]
-            logging.info(sql_max_updatedOn)
+            logging.info("Maximum updatedOn date:  %s",sql_max_updatedOn)
             
             # Check the maximum 'updatedOn' date in the DataFrame
             if nifty50DailyTableTest_DF is not None:
@@ -218,7 +215,7 @@ def load_data_to_sql_server(**kwargs):
             # Compare the dates and decide whether to append new data
             if (pd.isnull(sql_max_updatedOn)) and (not pd.isnull(df_max_updatedOn)):
                 nifty50DailyTableTest_DF.to_sql(nifty50_table_name, engine, index=False, if_exists='append', method='multi')
-                logging.info("Daily Data didn't exist, but now inserted succesDFully.")
+                logging.info("Daily Data didn't exist, but now inserted successfully.")
             else:
                 if (df_max_updatedOn > pd.Timestamp(sql_max_updatedOn)):
                     nifty50DailyTableTest_DF.to_sql(nifty50_table_name, engine, index=False, if_exists='append', method='multi')
