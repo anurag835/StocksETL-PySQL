@@ -11,6 +11,9 @@ import psycopg2 # for sql queries
 from sqlalchemy import create_engine, inspect# pre-built toolkit to work with sql database.
 import sqlalchemy as sa
 import logging
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 1000)
@@ -107,10 +110,11 @@ def transform_data(**kwargs):
     nifty50DailyTable.rename(columns={'52weekLow': 'fiftytwoweekLow'}, inplace=True)
     nifty50DailyTable.rename(columns={'2WeekAvgQuantity': 'twoWeekAvgQuantity'}, inplace=True)
     nifty50DailyTableTest_DF = nifty50DailyTable.copy()
+
     # In Existing dataframe column i.e: updateOn. It's not really a correct date format. 
     # Convert 'updatedOn' column to datetime and extract date
     nifty50DailyTableTest_DF['updatedOn'] = pd.to_datetime(nifty50DailyTableTest_DF['updatedOn'], format='%d %b %y | %I:%M %p', errors='coerce')
-
+    
     # Check if there are any invalid or missing date values.
     if pd.isna(nifty50DailyTableTest_DF['updatedOn']).any():
         logging.warning("There are invalid or missing date values in the 'updatedOn' column.")
@@ -136,11 +140,26 @@ def transform_data(**kwargs):
     
     # Push the JSON-serializable data to XCom
     kwargs['ti'].xcom_push(key='nifty50_data_transformed', value=nifty50_data_dict_transformed)
+
+    # Time Series Plot
+    # utilizes Seaborn and Matplotlib to generate a time series plot of stock prices and 
+    # save it as a PNG file that includes the date on the x-axis and the stock prices on the y-axis.
+    plt.figure(figsize=(12, 6))
+    # Creates a line plot using Seaborn
+    sns.lineplot(x='updatedOn', y='currentValue', data=nifty50DailyTableTest_DF, label='Stock Prices', marker='o')
+    plt.title('Nifty 50 Stock Prices Over Time')
+    plt.xlabel('Date')
+    plt.ylabel('Stock Price (INR)')
+    plt.legend()
+    save_path = os.path.join(os.getcwd(), 'time_series_plot.png')
+    plt.savefig(save_path)
+    
+    plt.close()
     
     
 
 # Loading data to PostgreSQL Database Using psycopg2 connection and Sqlalchemy Engine
-def load_data_to_sql_server(**kwargs):
+def load_data_to_postgresql(**kwargs):
     task_instance = kwargs.get('ti')
     nifty50DailyTableTest_data = task_instance.xcom_pull(task_ids='transform_data', key='nifty50_data_transformed')
     logging.info("XCom Value: %s", nifty50DailyTableTest_data)
@@ -241,8 +260,8 @@ transform_task = PythonOperator(
 )
 
 load_task = PythonOperator(
-    task_id='load_data_to_sql_server',
-    python_callable=load_data_to_sql_server,
+    task_id='load_data_to_postgresql',
+    python_callable=load_data_to_postgresql,
     provide_context=True,
     dag=dag,
 )
