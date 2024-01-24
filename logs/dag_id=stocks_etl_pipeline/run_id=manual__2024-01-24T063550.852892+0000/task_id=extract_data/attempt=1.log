@@ -1,0 +1,19 @@
+[2024-01-24T12:06:42.304+0530] {logging_mixin.py:188} INFO - Changing /mnt/c/Users/lenovo/OneDrive/Desktop/StocksETL-PySQL/logs/dag_id=stocks_etl_pipeline/run_id=manual__2024-01-24T06:35:50.852892+00:00/task_id=extract_data permission to 509
+[2024-01-24T12:06:42.525+0530] {logging_mixin.py:188} INFO - Changing /mnt/c/Users/lenovo/OneDrive/Desktop/StocksETL-PySQL/logs/dag_id=stocks_etl_pipeline/run_id=manual__2024-01-24T06:35:50.852892+00:00/task_id=extract_data permission to 509
+[2024-01-24T12:06:42.802+0530] {taskinstance.py:1957} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: stocks_etl_pipeline.extract_data manual__2024-01-24T06:35:50.852892+00:00 [queued]>
+[2024-01-24T12:06:42.821+0530] {taskinstance.py:1957} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: stocks_etl_pipeline.extract_data manual__2024-01-24T06:35:50.852892+00:00 [queued]>
+[2024-01-24T12:06:42.822+0530] {taskinstance.py:2171} INFO - Starting attempt 1 of 2
+[2024-01-24T12:06:42.851+0530] {taskinstance.py:2192} INFO - Executing <Task(PythonOperator): extract_data> on 2024-01-24 06:35:50.852892+00:00
+[2024-01-24T12:06:42.861+0530] {standard_task_runner.py:60} INFO - Started process 129239 to run task
+[2024-01-24T12:06:42.868+0530] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'stocks_etl_pipeline', 'extract_data', 'manual__2024-01-24T06:35:50.852892+00:00', '--job-id', '270', '--raw', '--subdir', 'DAGS_FOLDER/ETL-API-To-SQL-Server.py', '--cfg-path', '/tmp/tmpmegpxorj']
+[2024-01-24T12:06:42.870+0530] {standard_task_runner.py:88} INFO - Job 270: Subtask extract_data
+[2024-01-24T12:06:42.924+0530] {logging_mixin.py:188} INFO - Changing /mnt/c/Users/lenovo/OneDrive/Desktop/StocksETL-PySQL/logs/dag_id=stocks_etl_pipeline/run_id=manual__2024-01-24T06:35:50.852892+00:00/task_id=extract_data permission to 509
+[2024-01-24T12:06:42.928+0530] {task_command.py:423} INFO - Running <TaskInstance: stocks_etl_pipeline.extract_data manual__2024-01-24T06:35:50.852892+00:00 [running]> on host DESKTOP-JJK6U2R.
+[2024-01-24T12:06:43.006+0530] {taskinstance.py:2481} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='stocks_etl_pipeline' AIRFLOW_CTX_TASK_ID='extract_data' AIRFLOW_CTX_EXECUTION_DATE='2024-01-24T06:35:50.852892+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2024-01-24T06:35:50.852892+00:00'
+[2024-01-24T12:06:49.791+0530] {ETL-API-To-SQL-Server.py:47} INFO - Reading of the data from API is successful
+[2024-01-24T12:06:49.792+0530] {ETL-API-To-SQL-Server.py:48} INFO - 4244
+[2024-01-24T12:06:49.894+0530] {ETL-API-To-SQL-Server.py:70} INFO - 50
+[2024-01-24T12:08:12.109+0530] {python.py:201} INFO - Done. Returned value was: None
+[2024-01-24T12:08:12.114+0530] {taskinstance.py:1138} INFO - Marking task as SUCCESS. dag_id=stocks_etl_pipeline, task_id=extract_data, execution_date=20240124T063550, start_date=20240124T063642, end_date=20240124T063812
+[2024-01-24T12:08:12.172+0530] {local_task_job_runner.py:234} INFO - Task exited with return code 0
+[2024-01-24T12:08:12.189+0530] {taskinstance.py:3281} INFO - 1 downstream tasks scheduled from follow-on schedule check

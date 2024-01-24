@@ -14,6 +14,9 @@ import logging
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from dotenv import load_dotenv
+# Load environment variables from .env
+load_dotenv()
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 1000)
@@ -153,25 +156,21 @@ def transform_data(**kwargs):
     plt.legend()
     save_path = os.path.join(os.getcwd(), 'time_series_plot.png')
     plt.savefig(save_path)
-    
     plt.close()
     
-    
-
 # Loading data to PostgreSQL Database Using psycopg2 connection and Sqlalchemy Engine
 def load_data_to_postgresql(**kwargs):
     task_instance = kwargs.get('ti')
     nifty50DailyTableTest_data = task_instance.xcom_pull(task_ids='transform_data', key='nifty50_data_transformed')
-    logging.info("XCom Value: %s", nifty50DailyTableTest_data)
 
     nifty50DailyTableTest_DF=pd.DataFrame.from_records(nifty50DailyTableTest_data)
     nifty50DailyTableTest_DF['updatedOn'] = pd.to_datetime(nifty50DailyTableTest_DF['updatedOn'])
 
     logging.info("Original Column Names: %s", nifty50DailyTableTest_DF.columns)
 
-    database = 'nifty50'
-    username = 'postgres'
-    password = 'Anuragss07#'
+    database = os.environ.get('DB_NAME')
+    username = os.environ.get('DB_USER')
+    password = os.environ.get('DB_PASSWORD')
     
     # PostgreSQL database connection string
     conn_str = f'postgresql://{username}:{password}@localhost:5432/{database}'
