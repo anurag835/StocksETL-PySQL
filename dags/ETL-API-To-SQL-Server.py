@@ -42,10 +42,13 @@ dag = DAG(
 )
 
 def extract_data(**kwargs):
-    excel_url = "https://raw.githubusercontent.com/jangid6/Stock-ETL-Project/main/Equity.xlsx"  
-    EquityDF = pd.read_excel(excel_url, engine='openpyxl')
-    logging.info("Reading of the data from API is successful")
-    logging.info(len(EquityDF))
+    try:
+        excel_url = "https://raw.githubusercontent.com/jangid6/Stock-ETL-Project/main/Equity.xlsx"  
+        EquityDF = pd.read_excel(excel_url, engine='openpyxl')
+        logging.info("Reading of the data from API is successful")
+        logging.info(len(EquityDF))
+    except Exception as e:
+        logging.error(f"Error during data extraction: {e}")
 
 # CALLING BSE API for fetching Stocks Data for eg: Price, Code, Updated Date, Open Price, Close Price, Mrkt Cap
     # Created a list of 50 stocks which is a part of NIFTY 50.
@@ -101,6 +104,9 @@ def extract_data(**kwargs):
 def transform_data(**kwargs):
     task_instance = kwargs.get('ti')
     nifty50_data_dict = task_instance.xcom_pull(task_ids='extract_data', key='nifty50_data')
+    if nifty50_data_dict is None:
+        logging.warning("No data found in XCom. Check if the upstream task executed successfully.")
+        return
     logging.info("XCom Value: %s", nifty50_data_dict)
     # Convert the JSON-serializable data back to a DataFrame
     nifty50DailyTable = pd.DataFrame.from_records(nifty50_data_dict)
@@ -162,20 +168,24 @@ def transform_data(**kwargs):
 def load_data_to_postgresql(**kwargs):
     task_instance = kwargs.get('ti')
     nifty50DailyTableTest_data = task_instance.xcom_pull(task_ids='transform_data', key='nifty50_data_transformed')
+    if nifty50DailyTableTest_data is None:
+        logging.warning("No data found in XCom. Check if the upstream task executed successfully.")
+        return
 
     nifty50DailyTableTest_DF=pd.DataFrame.from_records(nifty50DailyTableTest_data)
     nifty50DailyTableTest_DF['updatedOn'] = pd.to_datetime(nifty50DailyTableTest_DF['updatedOn'])
-
     logging.info("Original Column Names: %s", nifty50DailyTableTest_DF.columns)
 
     database = os.environ.get('DB_NAME')
     username = os.environ.get('DB_USER')
     password = os.environ.get('DB_PASSWORD')
-    
+
+    if database is None or username is None or password is None:
+        raise ValueError("DB_NAME or DB_USER or DB_PASSWORD not found in environment variables.")
+ 
     # PostgreSQL database connection string
     conn_str = f'postgresql://{username}:{password}@localhost:5432/{database}'
     logging.info("Connection String: %s", conn_str)
-    
 
     try:
         # Try to connect to the PostgreSQL using the engine
