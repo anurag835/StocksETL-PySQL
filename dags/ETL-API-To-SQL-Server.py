@@ -43,7 +43,7 @@ dag = DAG(
 
 def extract_data(**kwargs):
     try:
-        excel_url = "https://raw.githubusercontent.com/jangid6/Stock-ETL-Project/main/Equity.xlsx"  
+        excel_url = os.environ.get("EQUITY_EXCEL_URL")  
         EquityDF = pd.read_excel(excel_url, engine='openpyxl')
         logging.info("Reading of the data from API is successful")
         logging.info(len(EquityDF))
